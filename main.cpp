@@ -9,13 +9,13 @@
 #define HEIGHT 400
 
 #define xpos(x) (2.0f/(float)WIDTH)*(float)x-1.0
-#define ypos(y) (2.0f/(float)HEIGHT)*(float)y-1.0
+#define ypos(y) (-2.0f/(float)HEIGHT)*(float)y+1.0
 
-void setPoint(float x, float y)
+void setBlock(float x, float y)
 {
     // How much pixels a block requires
-    const int xpixel = 8;
-    const int ypixel = 8;
+    const int xpixel = 20;
+    const int ypixel = 20;
 
     for(float i = xpixel*x; i < xpixel*(x+1); ++i)
     {
@@ -27,19 +27,27 @@ void setPoint(float x, float y)
 }
 
 // SCENARIO
-const int rows = 8;
-const int cols = 8;
+const int rows = 16;
+const int cols = 16;
 
 char scenario[2+rows][2+cols]=
 {
-    "00000000",
-    "00000000",
-    "00000000",
-    "00000000",
-    "00000000",
-    "00000000",
-    "00000000",
-    "00000000"
+    "1111111111111111",
+    "1000000000000001",
+    "1000000000000001",
+    "1000000000000001",
+    "1000000000000001",
+    "1000001111111111",
+    "1000001000000001",
+    "1000001000000001",
+    "1000001100000001",
+    "1000001111000001",
+    "1001100001000001",
+    "1000100001000001",
+    "1000111111000001",
+    "1000000000000001",
+    "1000000000000001",
+    "1111111111111111"
 };
 
 int main()
@@ -52,8 +60,8 @@ int main()
 
     const int width  = 600;
     const int height = 400;
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -66,14 +74,18 @@ int main()
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0.2f, 0.0f, 0.2f, 1.0f);
 
-        for(int i = 0; i < (float)WIDTH/8.0;++i)
+        // Plot the map
+        for(int i = 0; i < rows;++i)
         {
-            glColor3f(sin(i), cos(i), i*0.1f);
-            setPoint(i,1);
+            for(int j=0; j<cols;++j)
+            {
+                glColor3f(sin(i), cos(i), i*0.1f);
+                if(scenario[j][i]=='1')
+                    setBlock(i,j);
+            }
         }
 
         glfwSwapBuffers(window);
