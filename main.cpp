@@ -2,6 +2,7 @@
 // execute: ./main
 
 #include <stdio.h>
+#include <math.h>
 #include <GLFW/glfw3.h>
 
 #define WIDTH 600
@@ -13,8 +14,8 @@
 void setPoint(float x, float y)
 {
     // How much pixels a block requires
-    const int xpixel = 16;
-    const int ypixel = 16;
+    const int xpixel = 8;
+    const int ypixel = 8;
 
     for(float i = xpixel*x; i < xpixel*(x+1); ++i)
     {
@@ -69,16 +70,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0.2f, 0.0f, 0.2f, 1.0f);
 
-        glColor3f(1.0f, 1.0f, 0.0f);
-        setPoint(1,1);
-        glColor3f(1.0f,0.5f,1.0f);
-        setPoint(0,0);
-        setPoint(2,2);
+        for(int i = 0; i < (float)WIDTH/8.0;++i)
+        {
+            glColor3f(sin(i), cos(i), i*0.1f);
+            setPoint(i,1);
+        }
 
-        /* Swap front and back buffers */
         glfwSwapBuffers(window);
-
-        /* Poll for and process events */
         glfwPollEvents();
     }
 
