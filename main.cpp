@@ -11,16 +11,13 @@
 #define xpos(x) (2.0f/(float)WIDTH)*(float)x-1.0
 #define ypos(y) (-2.0f/(float)HEIGHT)*(float)y+1.0
 
-void setBlock(float x, float y)
+void setBlock(float x, float y, const int xsize, const int ysize)
 {
     // How much pixels a block requires
-    const int xpixel = 20;
-    const int ypixel = 20;
-
-    for(float i = xpixel*x; i < xpixel*(x+1); ++i)
+    for(float i = xsize*x; i < xsize*(x+1); ++i)
     {
         glBegin(GL_POINTS);
-        for(float j = ypixel*y; j < ypixel*(y+1); ++j)
+        for(float j = ysize*y; j < ysize*(y+1); ++j)
             glVertex2f(xpos(i), ypos(j));
         glEnd();
     }    
@@ -50,6 +47,24 @@ char scenario[2+rows][2+cols]=
     "1111111111111111"
 };
 
+// PLAYER
+int xPlayer = 10;
+int yPlayer = 10;
+
+// MOVEMENT
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if(key == GLFW_KEY_D && action != GLFW_PRESS)
+        xPlayer += 1;
+    if(key == GLFW_KEY_A && action != GLFW_PRESS)
+        xPlayer -= 1;
+    if(key == GLFW_KEY_S && action != GLFW_PRESS)
+        yPlayer += 1;
+    if(key == GLFW_KEY_W && action != GLFW_PRESS)
+        yPlayer -= 1;
+}
+
+// EXECUTION
 int main()
 {
     GLFWwindow* window;
@@ -57,9 +72,6 @@ int main()
     /* Initialize the library */
     if (!glfwInit())
         return -1;
-
-    const int width  = 600;
-    const int height = 400;
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
     if (!window)
@@ -70,6 +82,7 @@ int main()
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, key_callback);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -84,9 +97,12 @@ int main()
             {
                 glColor3f(sin(i), cos(i), i*0.1f);
                 if(scenario[j][i]=='1')
-                    setBlock(i,j);
+                    setBlock(i,j,20,20);
             }
         }
+
+        glColor3f(1.0f, 1.0f, 0.0f);
+        setBlock(xPlayer,yPlayer,10,10);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
