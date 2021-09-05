@@ -47,7 +47,7 @@ float yPlayer = 10;
 // VIEW
 float viewAngle = 45;
 float fov = 30; 
-float numRays = 10;
+float numRays = 40;
 
 // MOVEMENT
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -108,9 +108,9 @@ bool rayCollision2D(vec2 point)
 void detectRayCollision2D(float angle)
 {
     // angle in degrees.
-    float r=1;
-    while(!rayCollision2D(setRay(xPlayer, yPlayer, 10, 10, r, angle))&&r<=300)
-        r+=1;
+    float radius=1;
+    while(!rayCollision2D(setRay(xPlayer, yPlayer, 10, 10, radius, angle))&&radius<=300)
+        radius+=1;
 }
 
 // EXECUTION
