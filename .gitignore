@@ -1,4 +1,5 @@
 bin/
+main
 tests
 tests.cpp
 .vscode/*

@@ -23,6 +23,20 @@ void setBlock(float x, float y, const int xsize, const int ysize)
     glEnd();
 }
 
+void setRay(float x, float y, float xsize, float ysize, float radius, float rayAngle)
+{
+    // rayAngle and relativeAngle are in degrees.
+    // relativeAngle is relative to ray.
+
+    float dx = radius*cos(radians(fabs(rayAngle)));
+    float dy = radius*sin(radians(fabs(rayAngle)));
+
+    glBegin(GL_LINES);
+        glVertex2f(xpos(xsize*x+xsize/2+dx), ypos(ysize*y+ysize/2+dy));
+        glVertex2f(xpos(xsize*x+xsize/2.0), ypos(ysize*y+ysize/2.0));
+    glEnd();
+}
+
 // SCENARIO
 const int rows = 16;
 const int cols = 16;
@@ -50,7 +64,11 @@ char scenario[2+rows][2+cols]=
 // PLAYER
 float xPlayer = 10;
 float yPlayer = 10;
+
+// VIEW
 float viewAngle = 45;
+float fov = 30; 
+float numRays = 10;
 
 // MOVEMENT
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -64,7 +82,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if(key == GLFW_KEY_W && action != GLFW_PRESS)
         yPlayer -= 1.5;
     if(key == GLFW_KEY_R && action != GLFW_PRESS)
-        viewAngle = (viewAngle + 3)>360?0:viewAngle+3;
+        viewAngle = (viewAngle+3)>360?0:viewAngle+3;
 }
 
 // EXECUTION
@@ -107,12 +125,21 @@ int main()
         glColor3f(1.0f, 1.0f, 0.0f);
         setBlock(xPlayer,yPlayer,10,10);
 
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glBegin(GL_LINES);
-            glVertex2f(xpos(10*xPlayer+5+30*cos(radians(viewAngle))), ypos(10*yPlayer+5+30*sin(radians(viewAngle))));
-            glVertex2f(xpos((10*xPlayer+5)), ypos((10*yPlayer+5)));
-        glEnd();
+        glColor3f(1.0f, 0.0f, 0.0f);
+        setRay(xPlayer, yPlayer, 10, 10, 100, viewAngle);
+        /*
+        setRay(xPlayer, yPlayer, 10, 10, 50, viewAngle, -fov/2);
+        setRay(xPlayer, yPlayer, 10, 10, 50, viewAngle, fov/2);*/
 
+        glColor3f(1.0f, 0.5f, 1.0f);
+        float step = fov/(numRays);
+        float subray = step;
+        for(float i=0;i<numRays/2;++i)
+        {
+            setRay(xPlayer, yPlayer, 10, 10, 100, viewAngle+subray);
+            setRay(xPlayer, yPlayer, 10, 10, 100, viewAngle-subray);
+            subray+=step;
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
