@@ -12,30 +12,9 @@
 #define ypos(y) (-2.0f/(float)HEIGHT)*(float)(y)+1.0
 
 #define radians(deg) (float)(M_PI*deg/180.0)
+#define interval(p, mp, Mp) (p>=mp && p<Mp)
 
-void setBlock(float x, float y, const int xsize, const int ysize)
-{
-    // How much pixels a block requires
-    glBegin(GL_POINTS);
-    for(float i = xsize*x; i < xsize*(x+1); ++i)
-        for(float j = ysize*y; j < ysize*(y+1); ++j)
-            glVertex2f(xpos(i), ypos(j)); 
-    glEnd();
-}
-
-void setRay(float x, float y, float xsize, float ysize, float radius, float rayAngle)
-{
-    // rayAngle and relativeAngle are in degrees.
-    // relativeAngle is relative to ray.
-
-    float dx = radius*cos(radians(fabs(rayAngle)));
-    float dy = radius*sin(radians(fabs(rayAngle)));
-
-    glBegin(GL_LINES);
-        glVertex2f(xpos(xsize*x+xsize/2+dx), ypos(ysize*y+ysize/2+dy));
-        glVertex2f(xpos(xsize*x+xsize/2.0), ypos(ysize*y+ysize/2.0));
-    glEnd();
-}
+typedef struct{float x,y;} vec2;
 
 // SCENARIO
 const int rows = 16;
@@ -82,7 +61,56 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if(key == GLFW_KEY_W && action != GLFW_PRESS)
         yPlayer -= 1.5;
     if(key == GLFW_KEY_R && action != GLFW_PRESS)
-        viewAngle = (viewAngle+3)>360?0:viewAngle+3;
+        viewAngle = (viewAngle+4)>360?0:viewAngle+4;
+}
+
+// RENDERING FUNCTIONS
+
+void setBlock(float x, float y, const int xsize, const int ysize)
+{
+    // How much pixels a block requires
+    glBegin(GL_POINTS);
+    for(float i = xsize*x; i < xsize*(x+1); ++i)
+        for(float j = ysize*y; j < ysize*(y+1); ++j)
+            glVertex2f(xpos(i), ypos(j)); 
+    glEnd();
+}
+
+vec2 getBlock(vec2 point, vec2 winSize)
+{
+    return {(float)(((WIDTH/2.0)*(point.x+1.0))/winSize.x), (float)(((-HEIGHT/2.0)*(point.y-1))/winSize.y)};
+}
+
+vec2 setRay(float x, float y, float xsize, float ysize, float radius, float rayAngle)
+{
+    // rayAngle and relativeAngle are in degrees.
+    // relativeAngle is relative to ray.
+
+    float dx = radius*cos(radians(fabs(rayAngle)));
+    float dy = radius*sin(radians(fabs(rayAngle)));
+
+    glBegin(GL_LINES);
+        glVertex2f(xpos(xsize*x+xsize/2+dx), ypos(ysize*y+ysize/2+dy));
+        glVertex2f(xpos(xsize*x+xsize/2.0), ypos(ysize*y+ysize/2.0));
+    glEnd();
+
+    return {(float)(xpos(xsize*x+xsize/2+dx)), (float)(ypos(ysize*y+ysize/2+dy))};
+}
+
+bool rayCollision2D(vec2 point)
+{
+    vec2 local = getBlock(point, {20.0,20.0});
+    if(interval(local.x, 0, cols)&&interval(local.y,0,rows)&&scenario[(int)local.y][(int)local.x]=='1')
+        return true;
+    return false;
+}
+
+void detectRayCollision2D(float angle)
+{
+    // angle in degrees.
+    float r=1;
+    while(!rayCollision2D(setRay(xPlayer, yPlayer, 10, 10, r, angle))&&r<=300)
+        r+=1;
 }
 
 // EXECUTION
@@ -126,18 +154,15 @@ int main()
         setBlock(xPlayer,yPlayer,10,10);
 
         glColor3f(1.0f, 0.0f, 0.0f);
-        setRay(xPlayer, yPlayer, 10, 10, 100, viewAngle);
-        /*
-        setRay(xPlayer, yPlayer, 10, 10, 50, viewAngle, -fov/2);
-        setRay(xPlayer, yPlayer, 10, 10, 50, viewAngle, fov/2);*/
+        detectRayCollision2D(viewAngle);
 
         glColor3f(1.0f, 0.5f, 1.0f);
         float step = fov/(numRays);
         float subray = step;
         for(float i=0;i<numRays/2;++i)
         {
-            setRay(xPlayer, yPlayer, 10, 10, 100, viewAngle+subray);
-            setRay(xPlayer, yPlayer, 10, 10, 100, viewAngle-subray);
+            detectRayCollision2D(viewAngle+subray);
+            detectRayCollision2D(viewAngle-subray);
             subray+=step;
         }
 
