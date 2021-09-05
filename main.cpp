@@ -8,19 +8,17 @@
 #define WIDTH 600
 #define HEIGHT 400
 
-#define xpos(x) (2.0f/(float)WIDTH)*(float)x-1.0
-#define ypos(y) (-2.0f/(float)HEIGHT)*(float)y+1.0
+#define xpos(x) (2.0f/(float)WIDTH)*(float)(x)-1.0
+#define ypos(y) (-2.0f/(float)HEIGHT)*(float)(y)+1.0
 
 void setBlock(float x, float y, const int xsize, const int ysize)
 {
     // How much pixels a block requires
+    glBegin(GL_POINTS);
     for(float i = xsize*x; i < xsize*(x+1); ++i)
-    {
-        glBegin(GL_POINTS);
         for(float j = ysize*y; j < ysize*(y+1); ++j)
-            glVertex2f(xpos(i), ypos(j));
-        glEnd();
-    }    
+            glVertex2f(xpos(i), ypos(j)); 
+    glEnd();
 }
 
 // SCENARIO
@@ -48,20 +46,20 @@ char scenario[2+rows][2+cols]=
 };
 
 // PLAYER
-int xPlayer = 10;
-int yPlayer = 10;
+float xPlayer = 10;
+float yPlayer = 10;
 
 // MOVEMENT
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if(key == GLFW_KEY_D && action != GLFW_PRESS)
-        xPlayer += 1;
+        xPlayer += 1.5;
     if(key == GLFW_KEY_A && action != GLFW_PRESS)
-        xPlayer -= 1;
+        xPlayer -= 1.5;
     if(key == GLFW_KEY_S && action != GLFW_PRESS)
-        yPlayer += 1;
+        yPlayer += 1.5;
     if(key == GLFW_KEY_W && action != GLFW_PRESS)
-        yPlayer -= 1;
+        yPlayer -= 1.5;
 }
 
 // EXECUTION
@@ -95,7 +93,7 @@ int main()
         {
             for(int j=0; j<cols;++j)
             {
-                glColor3f(sin(i), cos(i), i*0.1f);
+                glColor3f(sin(j+i), cos(i), cos(j+i));
                 if(scenario[j][i]=='1')
                     setBlock(i,j,20,20);
             }
@@ -103,6 +101,13 @@ int main()
 
         glColor3f(1.0f, 1.0f, 0.0f);
         setBlock(xPlayer,yPlayer,10,10);
+
+        glColor3f(1.0f, 0.0f, 1.0f);
+        glBegin(GL_LINES);
+            glVertex2f(0.0f, 0.0f);
+            glVertex2f(xpos((10*xPlayer+5)), ypos((10*yPlayer+5)));
+        glEnd();
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
