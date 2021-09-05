@@ -1,4 +1,4 @@
-/main
+bin/
 tests
 tests.cpp
-/.vscode
+.vscode/*
