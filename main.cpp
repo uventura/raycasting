@@ -11,6 +11,8 @@
 #define xpos(x) (2.0f/(float)WIDTH)*(float)(x)-1.0
 #define ypos(y) (-2.0f/(float)HEIGHT)*(float)(y)+1.0
 
+#define radians(deg) (float)(M_PI*deg/180.0)
+
 void setBlock(float x, float y, const int xsize, const int ysize)
 {
     // How much pixels a block requires
@@ -48,6 +50,7 @@ char scenario[2+rows][2+cols]=
 // PLAYER
 float xPlayer = 10;
 float yPlayer = 10;
+float viewAngle = 45;
 
 // MOVEMENT
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -60,6 +63,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         yPlayer += 1.5;
     if(key == GLFW_KEY_W && action != GLFW_PRESS)
         yPlayer -= 1.5;
+    if(key == GLFW_KEY_R && action != GLFW_PRESS)
+        viewAngle = (viewAngle + 3)>360?0:viewAngle+3;
 }
 
 // EXECUTION
@@ -104,7 +109,7 @@ int main()
 
         glColor3f(1.0f, 0.0f, 1.0f);
         glBegin(GL_LINES);
-            glVertex2f(0.0f, 0.0f);
+            glVertex2f(xpos(10*xPlayer+5+30*cos(radians(viewAngle))), ypos(10*yPlayer+5+30*sin(radians(viewAngle))));
             glVertex2f(xpos((10*xPlayer+5)), ypos((10*yPlayer+5)));
         glEnd();
 
